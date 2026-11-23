@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Result Management System</title>
+  <style>
+    :root {
+      --bg: #dbeafe; /* Light blue background */
+      --bg-grad: linear-gradient(135deg, #e0f2fe 0%, #bfdbfe 100%);
+      --card: #ffffff;
+      --text: #1e293b;
+      --muted: #64748b;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --danger: #dc2626;
+      --danger-bg: #fef2f2;
+      --success: #16a34a;
+      --success-bg: #f0fdf4;
+      --border: #cbd5e1;
+      --radius: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      background-image: var(--bg-grad);
+      color: var(--text);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 28px 16px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 820px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    header h1 {
+      font-size: 1.7rem;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    header p {
+      color: #334155;
+      font-size: 0.95rem;
+      margin-top: 4px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      margin-bottom: 20px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    @media (max-width: 600px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--text);
+    }
+
+    input[type="text"],
+    input[type="number"] {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      color: var(--text);
+      background: #fff;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    .subjects-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .subjects-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .subject-row {
+      display: grid;
+      grid-template-columns: 1fr 140px auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    @media (max-width: 520px) {
+      .subject-row {
+        grid-template-columns: 1fr 100px auto;
+      }
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      padding: 10px 16px;
+      transition: background-color 0.15s, opacity 0.15s;
+    }
+
+    .btn-secondary {
+      background: #eff6ff;
+      color: var(--primary);
+      padding: 7px 12px;
+      font-size: 0.85rem;
+    }
+
+    .btn-secondary:hover {
+      background: #dbeafe;
+    }
+
+    .btn-remove {
+      background: var(--danger-bg);
+      color: var(--danger);
+      padding: 10px 12px;
+    }
+
+    .btn-remove:hover {
+      background: #fee2e2;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn-reset {
+      background: #f1f5f9;
+      color: var(--text);
+    }
+
+    .btn-reset:hover {
+      background: #e2e8f0;
+    }
+
+    .error-msg {
+      color: var(--danger);
+      background: var(--danger-bg);
+      border: 1px solid #fecaca;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      margin-top: 12px;
+      display: none;
+    }
+
+    .error-msg.visible {
+      display: block;
+    }
+
+    /* Result Section */
+    #resultSection {
+      display: none;
+    }
+
+    #resultSection.visible {
+      display: block;
+    }
+
+    .result-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .badge-pass {
+      background: var(--success-bg);
+      color: var(--success);
+    }
+
+    .badge-fail {
+      background: var(--danger-bg);
+      color: var(--danger);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .stat-box {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      background: #f8fafc;
+    }
+
+    .stat-label {
+      font-size: 0.78rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 4px;
+    }
+
+    .stat-value {
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    .stat-sub {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .low-mark {
+      color: var(--danger);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Student Result Management System</h1>
+      <h2> <i>MARKS CALCULATOR 🎯</i></h2>
+      
+    </header>
+
+    <div class="card">
+      <div class="form-grid">
+        <div>
+          <label for="studentName">Student Name</label>
+          <input type="text" id="studentName" placeholder="e.g., Ayesha Khan" />
+        </div>
+        <div>
+          <label for="passMark">Pass Mark per Subject</label>
+          <input type="number" id="passMark" value="25" min="0" max="25" />
+        </div>
+      </div>
+
+      <div class="subjects-header">
+        <label style="margin-bottom: 0;">Subjects &amp; Marks (0–25)</label>
+        <button type="button" class="btn-secondary" id="addSubjectBtn">+ Add Subject</button>
+      </div>
+
+      <div class="subjects-list" id="subjectsList"></div>
+
+      <div class="actions">
+        <button type="button" class="btn-primary" id="calculateBtn">Generate Result</button>
+        <button type="button" class="btn-reset" id="resetBtn">Reset</button>
+      </div>
+
+      <div class="error-msg" id="errorMsg"></div>
+    </div>
+
+    <div class="card" id="resultSection">
+      <div class="result-top">
+        <div>
+          <h2 id="reportTitle">Result Report</h2>
+          <p id="reportSubtitle" style="color: var(--muted); font-size: 0.9rem;"></p>
+        </div>
+        <span id="statusBadge" class="badge"></span>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="stat-label">Total Marks</div>
+          <div class="stat-value" id="totalMarks">-</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Percentage</div>
+          <div class="stat-value" id="percentage">-</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Grade</div>
+          <div class="stat-value" id="grade">-</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Highest Mark</div>
+          <div class="stat-value" id="highestMark">-</div>
+          <div class="stat-sub" id="highestSubjects"></div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Lowest Mark</div>
+          <div class="stat-value" id="lowestMark">-</div>
+          <div class="stat-sub" id="lowestSubjects"></div>
+        </div>
+      </div>
+         
+      <table>
+        <thead>
+          <tr>
+            <th>Subject</th>
+            <th>Marks</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="breakdownBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const MAX_MARK = 25;
+    const defaultSubjects = ["Mathematics", "Physics", "Chemistry", "English"];
+
+    const subjectsListEl = document.getElementById("subjectsList");
+    const addSubjectBtn = document.getElementById("addSubjectBtn");
+    const calculateBtn = document.getElementById("calculateBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const errorMsgEl = document.getElementById("errorMsg");
+    const resultSectionEl = document.getElementById("resultSection");
+    
+    function createSubjectRow(name = "", mark = "") {
+      const row = document.createElement("div");
+      row.className = "subject-row";
+
+      const nameInput = document.createElement("input");
+      nameInput.type = "text";
+      nameInput.className = "subject-name";
+      nameInput.placeholder = "Subject name";
+      nameInput.value = name;
+
+      const markInput = document.createElement("input");
+      markInput.type = "number";
+      markInput.className = "subject-mark";
+      markInput.placeholder = "0–25";
+      markInput.min = "0";
+      markInput.max = String(MAX_MARK);
+      markInput.step = "any";
+      markInput.value = mark;
+
+      const removeBtn = document.createElement("button");
+      removeBtn.type = "button";
+      removeBtn.className = "btn-remove";
+      removeBtn.textContent = "Remove";
+      removeBtn.title = "Remove subject";
+      removeBtn.addEventListener("click", () => {
+        if (subjectsListEl.children.length > 1) {
+          row.remove();
+        } else {
+          showError("At least one subject is required.");
+        }
+      });
+
+      row.append(nameInput, markInput, removeBtn);
+      subjectsListEl.appendChild(row);
+    }
+
+    function showError(message) {
+      errorMsgEl.textContent = message;
+      errorMsgEl.classList.add("visible");
+    }
+
+    function clearError() {
+      errorMsgEl.textContent = "";
+      errorMsgEl.classList.remove("visible");
+    }
+
+    function getGrade(percentage, passedAll) {
+      if (!passedAll || percentage < 40) return "Fail";
+      if (percentage >= 80) return "A";
+      if (percentage >= 60) return "B";
+      return "C";
+    }
+
+    function calculateResult() {
+      clearError();
+
+      const studentName = document.getElementById("studentName").value.trim() || "Student";
+      const passMark = parseFloat(document.getElementById("passMark").value);
+
+      if (Number.isNaN(passMark) || passMark < 0 || passMark > MAX_MARK) {
+        showError(`Pass mark must be a valid number between 0 and ${MAX_MARK}.`);
+        return;
+      }
+
+      const rows = [...subjectsListEl.querySelectorAll(".subject-row")];
+      const subjects = [];
+
+      for (let i = 0; i < rows.length; i++) {
+        const subjName = rows[i].querySelector(".subject-name").value.trim() || `Subject ${i + 1}`;
+        const rawMark = rows[i].querySelector(".subject-mark").value.trim();
+        const mark = Number(rawMark);
+
+        if (rawMark === "" || Number.isNaN(mark) || mark < 0 || mark > MAX_MARK) {
+          showError(`Enter a valid mark (0–${MAX_MARK}) for "${subjName}".`);
+          return;
+        }
+        subjects.push({ name: subjName, mark });
+      }
+
+      if (subjects.length === 0) {
+        showError("Please add at least one subject.");
+        return;
+      }
+
+      const totalMarks = subjects.reduce((sum, s) => sum + s.mark, 0);
+      const maxTotal = subjects.length * MAX_MARK;
+      const percentage = (totalMarks / maxTotal) * 100;
+
+      const highestVal = Math.max(...subjects.map((s) => s.mark));
+      const lowestVal = Math.min(...subjects.map((s) => s.mark));
+
+      const highestNames = subjects.filter((s) => s.mark === highestVal).map((s) => s.name);
+      const lowestNames = subjects.filter((s) => s.mark === lowestVal).map((s) => s.name);
+
+      const passedAll = subjects.every((s) => s.mark >= passMark);
+      const isPass = passedAll && percentage >= passMark;
+      const grade = getGrade(percentage, passedAll);
+
+     
+      document.getElementById("reportTitle").textContent = `Result: ${studentName}`;
+      document.getElementById("reportSubtitle").textContent =
+        `${subjects.length} subject(s) · Minimum pass mark: ${passMark} / ${MAX_MARK}`;
+
+      const badgeEl = document.getElementById("statusBadge");
+      badgeEl.textContent = isPass ? "PASS" : "FAIL";
+      badgeEl.className = `badge ${isPass ? "badge-pass" : "badge-fail"}`;
+
+      document.getElementById("totalMarks").textContent = `${totalMarks} / ${maxTotal}`;
+      document.getElementById("percentage").textContent = `${percentage.toFixed(2)}%`;
+      document.getElementById("grade").textContent = grade;
+
+      document.getElementById("highestMark").textContent = `${highestVal}`;
+      document.getElementById("highestSubjects").textContent = highestNames.join(", ");
+
+      document.getElementById("lowestMark").textContent = `${lowestVal}`;
+      document.getElementById("lowestSubjects").textContent = lowestNames.join(", ");
+
+     
+      const tbody = document.getElementById("breakdownBody");
+      tbody.innerHTML = "";
+
+      subjects.forEach((s) => {
+        const tr = document.createElement("tr");
+        const passedSubj = s.mark >= passMark;
+
+        const tdName = document.createElement("td");
+        tdName.textContent = s.name;
+
+        const tdMark = document.createElement("td");
+        tdMark.textContent = `${s.mark} / ${MAX_MARK}`;
+        if (!passedSubj) tdMark.className = "low-mark";
+
+        const tdStatus = document.createElement("td");
+        tdStatus.textContent = passedSubj ? "Pass" : "Fail";
+        tdStatus.className = passedSubj ? "" : "low-mark";
+
+        tr.append(tdName, tdMark, tdStatus);
+        tbody.appendChild(tr);
+      });
+
+      resultSectionEl.classList.add("visible");
+      resultSectionEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function initDefaultRows() {
+      subjectsListEl.innerHTML = "";
+      defaultSubjects.forEach((name) => createSubjectRow(name, ""));
+    }
+
+    addSubjectBtn.addEventListener("click", () => createSubjectRow("", ""));
+    calculateBtn.addEventListener("click", calculateResult);
+    resetBtn.addEventListener("click", () => {
+      document.getElementById("studentName").value = "";
+      document.getElementById("passMark").value = "40";
+      clearError();
+      resultSectionEl.classList.remove("visible");
+      initDefaultRows();
+    });
+
+    initDefaultRows();
+  </script>
+</body>
+</html>
